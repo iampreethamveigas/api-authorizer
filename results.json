@@ -1,0 +1,13 @@
+{
+    "principalId": "user",
+    "policyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Action": "execute-api:Invoke",
+                "Effect": "Allow",
+                "Resource": "arn:aws:execute-api:us-west-2:782894107121:v63zpno795/ESTestInvoke-stage/*/*"
+            }
+        ]
+    }
+}

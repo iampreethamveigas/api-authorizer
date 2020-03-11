@@ -1,0 +1,26 @@
+{
+  "name": "authentication",
+  "version": "1.0.0",
+  "description": "To authenticate APIs",
+  "main": "index.js",
+  "scripts": {
+    "local": "serverless invoke local -f authorizer",
+    "serverless": "serverless",
+    "tsc": "tsc",
+    "clean": "rimraf ./dist",
+    "package": "rimraf *.zip && zip -rq temp-app.zip dist node_modules package*.json serverless.yml webpack.config.js source-map-install.js && mv temp-app.zip",
+    "build": "rimraf ./dist",
+    "test": "mocha -r ts-node/register ./**/*.spec.ts",
+    "deploy": "npm run build && serverless deploy"
+  },
+  "author": "Sushanth Sanil",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "0.19.2"
+  },
+  "devDependencies": {
+    "mocha": "^7.1.0",
+    "rimraf": "^3.0.2",
+    "serverless": "^1.65.0"
+  }
+}
