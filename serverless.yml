@@ -4,38 +4,105 @@ provider:
   runtime: nodejs12.x
   stage: ${opt:stage, 'dev'}
   region: ${self:custom.pRegion}
-  role: arn:aws:iam::${self:custom.pAccount}:role/AWSServiceForLamda
+  role: lambdaAuthRole
+  # role: arn:aws:iam::${self:custom.pAccount}:role/AWSServiceForLamda
   Timeout: 900
   deploymentBucket:
-    name: ${self:provider.stage}.avp.ive.toyota.com-data
+    name: ${self:provider.stage}.ive.toyota.com-data
     tags:
       name: ${self:service}
-      project: AVP
+      project: IVE
   deploymentPrefix: serverless
 
 functions:
   authorizer:
     name: ${self:service}-${self:provider.stage}
-    handler: apv-authorizer.handler
+    handler: ive-authorizer.handler
     environment:
-      apv_lambda_env: ${self:provider.stage}
+      ive_lambda_env: ${self:provider.stage}
       validate_token_url_dev: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
       validate_token_url_qa: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
       validate_token_url_prod: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
 
 custom:
+  # Region Map for deployment of lambda functions.
   dev-region: us-west-2
   qa-region: us-west-2
   prod-region: us-west-1
-  pEnvironment: ${opt:stage, self:provider.stage}
-  pRegion: ${self:custom.${self:custom.pEnvironment}-region}
+
+  # AWS account
+  dev-account-id: 782894107121
+  qa-account-id: 782894107121
+  prod-account-id: 923015774532
+
+  # AWS account
   dev-account: 782894107121
   qa-account: 782894107121
-  prod-account: 782894107121
+  prod-account: 923015774532
+
+  pAccountId: ${self:custom.${self:custom.pEnvironment}-account-id}
+
+  pEnvironment: ${opt:stage, self:provider.stage}
+  pRegion: ${self:custom.${self:custom.pEnvironment}-region}
   pAccount: ${self:custom.${self:custom.pEnvironment}-account}
+
   environment:
-    apv_lambda_env: ${self:provider.stage}
+    ive_lambda_env: ${self:provider.stage}
     stages:
       - dev
       - qa
       - prod
+package:
+  include: dist/**
+    node_modules/**
+    package*.json
+    serverless.yml
+    webpack.config.js
+    source-map-install.js
+
+resources:
+  Resources:
+    lambdaAuthRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /
+        RoleName: ${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}-role-api-authorizer
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: ${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}-policy-api-authorizer
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action: ["ssm:Describe*", "ssm:Get*", "ssm:List*"]
+                  Resource: "arn:aws:ssm:*:*:parameter/${self:custom.pProjectCode}/${self:custom.pEnvironment}/${self:custom.pAppID}*"
+                - Effect: "Allow"
+                  Action:
+                    [
+                      "logs:CreateLogGroup",
+                      "logs:CreateLogStream",
+                      "logs:PutLogEvents",
+                    ]
+                  Resource: "arn:aws:logs:*:*:log-group:/aws/lambda/${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}*"
+                - Effect: "Allow"
+                  Action:
+                    [
+                      "iam:GetPolicyVersion",
+                      "iam:GetRole",
+                      "iam:GetPolicy",
+                      "iam:GetRolePolicy",
+                    ]
+                  Resource: "arn:aws:iam::*:role/${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}*"
+                - Effect: "Allow" # xray permissions (required)
+                  Action:
+                    - "xray:PutTraceSegments"
+                    - "xray:PutTelemetryRecords"
+                  Resource:
+                    - "*"

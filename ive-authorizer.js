@@ -145,7 +145,7 @@ module.exports.handler = async (event) => {
 
     try {
 
-        tokenPass = event.authorizationToken;
+        let tokenPass = event.authorizationToken;
         let isValid = await isValidSignature(tokenPass);
         console.log(isValid);
         console.log("---isValid---");
