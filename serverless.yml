@@ -4,9 +4,9 @@ provider:
   runtime: nodejs12.x
   stage: ${opt:stage, 'dev'}
   region: ${self:custom.pRegion}
-  role: lambdaAuthRole
-  # role: arn:aws:iam::${self:custom.pAccount}:role/AWSServiceForLamda
-  Timeout: 900
+  role: arn:aws:iam::${self:custom.pAccount}:role/${self:custom.dev-role}
+  memorySize: 256
+  Timeout: 5
   deploymentBucket:
     name: ${self:provider.stage}.ive.toyota.com-data
     tags:
@@ -39,7 +39,12 @@ custom:
   dev-account: 782894107121
   qa-account: 782894107121
   prod-account: 923015774532
+  
+  dev-role: AWSServiceForLamda
+  qa-role: ive-qa-iam-lambda-role
+  #prod-role: ive-qa-iam-lambda-role
 
+  pRole: ${self:custom.{self:custom.pEnvironment}-role}
   pAccountId: ${self:custom.${self:custom.pEnvironment}-account-id}
 
   pEnvironment: ${opt:stage, self:provider.stage}
@@ -59,50 +64,3 @@ package:
     serverless.yml
     webpack.config.js
     source-map-install.js
-
-resources:
-  Resources:
-    lambdaAuthRole:
-      Type: AWS::IAM::Role
-      Properties:
-        Path: /
-        RoleName: ${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}-role-api-authorizer
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service:
-                  - lambda.amazonaws.com
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: ${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}-policy-api-authorizer
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: "Allow"
-                  Action: ["ssm:Describe*", "ssm:Get*", "ssm:List*"]
-                  Resource: "arn:aws:ssm:*:*:parameter/${self:custom.pProjectCode}/${self:custom.pEnvironment}/${self:custom.pAppID}*"
-                - Effect: "Allow"
-                  Action:
-                    [
-                      "logs:CreateLogGroup",
-                      "logs:CreateLogStream",
-                      "logs:PutLogEvents",
-                    ]
-                  Resource: "arn:aws:logs:*:*:log-group:/aws/lambda/${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}*"
-                - Effect: "Allow"
-                  Action:
-                    [
-                      "iam:GetPolicyVersion",
-                      "iam:GetRole",
-                      "iam:GetPolicy",
-                      "iam:GetRolePolicy",
-                    ]
-                  Resource: "arn:aws:iam::*:role/${self:custom.pProjectCode}-${self:custom.pEnvironment}-${self:custom.pAppID}*"
-                - Effect: "Allow" # xray permissions (required)
-                  Action:
-                    - "xray:PutTraceSegments"
-                    - "xray:PutTelemetryRecords"
-                  Resource:
-                    - "*"
