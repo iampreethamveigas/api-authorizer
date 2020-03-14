@@ -49,7 +49,7 @@ let decodeToken = (token) => {
 let verifySignature = (kid, token) => {
 
     return new Promise(async (resolve, reject) => {
-        const env = process.env.apv_lambda_env
+        const env = process.env.ive_lambda_env
         let url = process.env['validate_token_url_' + env]
         await axios({
             method: 'get',
