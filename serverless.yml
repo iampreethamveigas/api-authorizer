@@ -4,7 +4,7 @@ provider:
   runtime: nodejs12.x
   stage: ${opt:stage, 'dev'}
   region: ${self:custom.pRegion}
-  role: arn:aws:iam::${self:custom.pAccount}:role/${self:custom.dev-role}
+  role: arn:aws:iam::${self:custom.pAccount}:role/${self:custom.pRole}
   memorySize: 256
   Timeout: 5
   deploymentBucket:
@@ -16,8 +16,8 @@ provider:
 
 functions:
   authorizer:
-    name: ${self:service}-${self:provider.stage}
-    handler: ive-authorizer.handler
+    name: ive-authorizer
+    handler: dist/ive-authorizer.handler
     environment:
       ive_lambda_env: ${self:provider.stage}
       validate_token_url_dev: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
@@ -39,12 +39,12 @@ custom:
   dev-account: 782894107121
   qa-account: 782894107121
   prod-account: 923015774532
-  
+
   dev-role: AWSServiceForLamda
-  qa-role: ive-qa-iam-lambda-role
+  qa-role: AWSServiceForLamda
   #prod-role: ive-qa-iam-lambda-role
 
-  pRole: ${self:custom.{self:custom.pEnvironment}-role}
+  pRole: ${self:custom.${self:custom.pEnvironment}-role}
   pAccountId: ${self:custom.${self:custom.pEnvironment}-account-id}
 
   pEnvironment: ${opt:stage, self:provider.stage}
@@ -58,9 +58,18 @@ custom:
       - qa
       - prod
 package:
-  include: dist/**
-    node_modules/**
-    package*.json
-    serverless.yml
-    webpack.config.js
-    source-map-install.js
+  excludeDevDependencies: true
+  exclude:
+    - ./*.json
+    - /*.zip
+    - ./*.zip
+    - ./.json
+    - ./.js
+    # - node_modules/**
+    # - '!node_modules/ssh2-sftp-client/**'
+    # - '!node_modules/pg/**'
+    # - '!node_modules/ssh2/**'
+    # - '!node_modules/ssh2-streams/**'
+    # - '!node_modules/concat-stream/**'
+    # - '!node_modules/retry/**'
+
