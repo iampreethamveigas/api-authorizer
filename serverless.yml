@@ -4,38 +4,72 @@ provider:
   runtime: nodejs12.x
   stage: ${opt:stage, 'dev'}
   region: ${self:custom.pRegion}
-  role: arn:aws:iam::${self:custom.pAccount}:role/AWSServiceForLamda
-  Timeout: 900
+  role: arn:aws:iam::${self:custom.pAccount}:role/${self:custom.pRole}
+  memorySize: 256
+  Timeout: 5
   deploymentBucket:
-    name: ${self:provider.stage}.avp.ive.toyota.com-data
+    name: ${self:provider.stage}.ive.toyota.com-data
     tags:
       name: ${self:service}
-      project: AVP
+      project: IVE
   deploymentPrefix: serverless
 
 functions:
   authorizer:
-    name: ${self:service}-${self:provider.stage}
-    handler: apv-authorizer.handler
+    name: ive-authorizer
+    handler: dist/ive-authorizer.handler
     environment:
-      apv_lambda_env: ${self:provider.stage}
+      ive_lambda_env: ${self:provider.stage}
       validate_token_url_dev: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
       validate_token_url_qa: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
       validate_token_url_prod: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
 
 custom:
+  # Region Map for deployment of lambda functions.
   dev-region: us-west-2
   qa-region: us-west-2
   prod-region: us-west-1
-  pEnvironment: ${opt:stage, self:provider.stage}
-  pRegion: ${self:custom.${self:custom.pEnvironment}-region}
+
+  # AWS account
+  dev-account-id: 782894107121
+  qa-account-id: 782894107121
+  prod-account-id: 923015774532
+
+  # AWS account
   dev-account: 782894107121
   qa-account: 782894107121
-  prod-account: 782894107121
+  prod-account: 923015774532
+
+  dev-role: AWSServiceForLamda
+  qa-role: AWSServiceForLamda
+  #prod-role: ive-qa-iam-lambda-role
+
+  pRole: ${self:custom.${self:custom.pEnvironment}-role}
+  pAccountId: ${self:custom.${self:custom.pEnvironment}-account-id}
+
+  pEnvironment: ${opt:stage, self:provider.stage}
+  pRegion: ${self:custom.${self:custom.pEnvironment}-region}
   pAccount: ${self:custom.${self:custom.pEnvironment}-account}
+
   environment:
-    apv_lambda_env: ${self:provider.stage}
+    ive_lambda_env: ${self:provider.stage}
     stages:
       - dev
       - qa
       - prod
+package:
+  excludeDevDependencies: true
+  exclude:
+    - ./*.json
+    - /*.zip
+    - ./*.zip
+    - ./.json
+    - ./.js
+    # - node_modules/**
+    # - '!node_modules/ssh2-sftp-client/**'
+    # - '!node_modules/pg/**'
+    # - '!node_modules/ssh2/**'
+    # - '!node_modules/ssh2-streams/**'
+    # - '!node_modules/concat-stream/**'
+    # - '!node_modules/retry/**'
+

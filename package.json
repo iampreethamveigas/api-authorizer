@@ -4,14 +4,13 @@
   "description": "To authenticate APIs",
   "main": "index.js",
   "scripts": {
-    "local": "serverless invoke local -f authorizer",
     "serverless": "serverless",
-    "tsc": "tsc",
     "clean": "rimraf ./dist",
     "package": "rimraf *.zip && zip -rq temp-app.zip dist node_modules package*.json serverless.yml webpack.config.js source-map-install.js && mv temp-app.zip",
-    "build": "rimraf ./dist",
+    "build": "rimraf ./dist && mkdir dist && cp -R ./src/*.js dist/ ",
     "test": "mocha -r ts-node/register ./**/*.spec.ts",
-    "deploy": "npm run build && serverless deploy"
+    "deploy": "npm run build && serverless deploy",
+    "fdeploy": "npm run build && serverless deploy -f authorizer"
   },
   "author": "Sushanth Sanil",
   "license": "ISC",
@@ -21,6 +20,17 @@
   "devDependencies": {
     "mocha": "^7.1.0",
     "rimraf": "^3.0.2",
-    "serverless": "^1.65.0"
+    "serverless": "^1.65.0",
+    "@types/aws-lambda": "^8.10.1",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^8.0.57",
+    "chai": "^4.2.0",
+    "serverless-webpack": "^5.1.1",
+    "source-map-support": "^0.5.6",
+    "ts-loader": "^4.2.0",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3",
+    "webpack": "^4.5.0"
   }
 }
