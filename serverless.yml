@@ -16,7 +16,7 @@ provider:
 
 functions:
   authorizer:
-    name: ive${self:custom.functionName}-authorizer
+    name: ive-${self:provider.stage}-authorizer
     handler: dist/ive-authorizer.handler
     environment:
       ive_lambda_env: ${self:provider.stage}
