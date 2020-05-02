@@ -144,8 +144,6 @@ var generatePolicy = function (principalId, effect, resource) {
 
 module.exports.handler = async (event) => {
     let arnData = event.methodArn;
-    arnData = "arn:aws:execute-api:us-west-2:782894107121:5iz8ffyksi/ESTestInvoke-stage/GET/";
-
     console.log(arnData);
     event['methodArn'] = arnData
     try {
