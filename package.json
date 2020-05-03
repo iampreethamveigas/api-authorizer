@@ -12,7 +12,7 @@
     "deploy": "npm run build && serverless deploy",
     "fdeploy": "npm run build && serverless deploy -f authorizer"
   },
-  "author": ""
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "0.19.2"
