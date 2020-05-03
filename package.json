@@ -1,5 +1,5 @@
 {
-  "name": "authentication",
+  "name": "ive-authorizer",
   "version": "1.0.0",
   "description": "To authenticate APIs",
   "main": "index.js",
@@ -8,11 +8,11 @@
     "clean": "rimraf ./dist",
     "package": "rimraf *.zip && zip -rq temp-app.zip dist node_modules package*.json serverless.yml webpack.config.js source-map-install.js && mv temp-app.zip",
     "build": "rimraf ./dist && mkdir dist && cp -R ./src/*.js dist/ ",
-    "test": "mocha -r ts-node/register ./**/*.spec.ts",
+    "test": "",
     "deploy": "npm run build && serverless deploy",
     "fdeploy": "npm run build && serverless deploy -f authorizer"
   },
-  "author": "Sushanth Sanil",
+  "author": ""
   "license": "ISC",
   "dependencies": {
     "axios": "0.19.2"
