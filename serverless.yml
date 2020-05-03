@@ -21,7 +21,7 @@ functions:
     environment:
       ive_lambda_env: ${self:provider.stage}
       validate_token_url_dev: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
-      validate_token_url_qa: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
+      validate_token_url_qa: https://login.microsoftonline.com/8c642d1d-d709-47b0-ab10-080af10798fb/discovery/v2.0/keys
       validate_token_url_prod: https://login.microsoftonline.com/9107b728-2166-4e5d-8d13-d1ffdf0351ef/discovery/v2.0/keys
 
 custom:
